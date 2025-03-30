@@ -1,1 +1,2 @@
-# kingdom-battlegound
+# Kingdom Battleground
+
