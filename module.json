@@ -1,0 +1,12 @@
+{
+  "name": "kingdom-battleground",
+  "title": "Kingdom Battleground",
+  "description": "Adds custom features to play Kindom Battleground.",
+  "version": "1.0.0",
+  "author": "Alexis Sanzey, Pharoah Jardin",
+  "minimumCoreVersion": "10",
+  "compatibleCoreVersion": "10",
+  "styles": [
+    "css/style.css"
+  ]
+}
