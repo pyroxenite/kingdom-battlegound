@@ -2,7 +2,7 @@ console.log("Kingdom Battleground Loaded")
 ui.notifications.info("Kingdom Battleground Loaded");
 
 function add_listen_socket() {
-    game.socket.on('kingdom.com', (arg1, arg2, arg3) => {
+    game.socket.on('kingdom-battleground.com', (arg1, arg2, arg3) => {
         console.log(arg1, arg2, arg3); // expected: "foo bar bat"
     })
 }
@@ -15,7 +15,7 @@ function talk() {
         return;
     }
 
-    game.socket.emit("kingdom.com", {
+    game.socket.emit("kingdom-battleground.com", {
         userId: targetUser.name,
         title: "Un message secret",
         content: "<p>Voici une surprise pour toi !</p>"
