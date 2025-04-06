@@ -6,6 +6,9 @@
   "author": "Alexis Sanzey, Pharoah Jardin",
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
+  "scripts": [
+    "js/main.js"
+  ],
   "styles": [
     "css/style.css"
   ],
