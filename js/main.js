@@ -1,9 +1,14 @@
-console.log("Kingdom Battleground Loaded")
+Hooks.once("ready", () => {
+    
+    console.log("Kingdom Battleground Loaded")
 ui.notifications.info("Kingdom Battleground Loaded");
 
+add_listen_socket()
+})
+
 function add_listen_socket() {
-    game.socket.on('kingdom-battleground.com', (arg1, arg2, arg3) => {
-        console.log(arg1, arg2, arg3); // expected: "foo bar bat"
+    game.socket.on('module.kingdom-battleground', (arg1, arg2, arg3) => {
+        console.log("arg1, arg2, arg3"); // expected: "foo bar bat"
     })
 }
 
@@ -15,13 +20,14 @@ function talk() {
         return;
     }
 
-    game.socket.emit("kingdom-battleground.com", {
+    game.socket.emit("module.kingdom-battleground", {
         userId: targetUser.name,
         title: "Un message secret",
         content: "<p>Voici une surprise pour toi !</p>"
     });
 }
 
+// MARK: CONFLIT
 function conflict(token, rival, conflict_type) {
 
     // vérifie si une seule target et un seul token a été sélectionné
@@ -100,6 +106,7 @@ function conflict(token, rival, conflict_type) {
     })
 }
 
+// MARK: DISPLAY
 function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, attaque_cac, stance_prop, region_mod, roll_result, success, critique, rival_stance_prop_name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name) {
 
     ChatMessage.create({
@@ -154,6 +161,7 @@ function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, at
     });
 }
 
+// MARK: GET HEIGHT
 function get_height(token) {
     let regions = canvas.regions.children[0].children;
     for (let region of regions) {
@@ -167,6 +175,7 @@ function get_height(token) {
     return 0
 }
 
+// MARK: GET REGION MODIFIER
 function get_region_modifier(token) {
     let regions = canvas.regions.children[0].children;
     for (let region of regions) {
@@ -259,6 +268,7 @@ function get_region_modifier(token) {
     };
 }
 
+// MARK: GET STANCE PROPERTIES
 function get_stance_properties(stance_name) {
     const stances = {
         marche: {
@@ -360,6 +370,7 @@ function get_stance_properties(stance_name) {
     return result;
 }
 
+// MARK: SPECIAL STANCE
 function special_stance(actor) {
     if (actor == "Phalange") {
         return "tortue"
@@ -377,6 +388,7 @@ function special_stance(actor) {
     }
 }
 
+// MARK: CRITIQUE TYPE
 function critique_type(result) {
     if (result == 1) {
         return "Reussite Critique"
@@ -389,6 +401,7 @@ function critique_type(result) {
     }
 }
 
+// MARK: SIGNE NUM
 function s_num(x) {
     if (x == 0) {
         return "0"
