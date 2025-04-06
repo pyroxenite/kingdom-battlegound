@@ -2,12 +2,13 @@
   "name": "kingdom-battleground",
   "title": "Kingdom Battleground",
   "description": "Adds custom features to play Kingdom Battleground.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Alexis Sanzey, Pharoah Jardin",
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
   "scripts": [
-    "js/main.js"
+    "js/main.js",
+    "js/test.js"
   ],
   "styles": [
     "css/style.css"

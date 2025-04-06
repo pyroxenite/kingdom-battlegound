@@ -6,6 +6,8 @@ ui.notifications.info("Kingdom Battleground Loaded");
 add_listen_socket()
 })
 
+
+
 function add_listen_socket() {
     game.socket.on('module.kingdom-battleground', (arg1, arg2, arg3) => {
         console.log("arg1, arg2, arg3"); // expected: "foo bar bat"

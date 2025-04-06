@@ -1,3 +1,19 @@
 .test {
   outline: 1px solid cyan
 }
+
+.choice {
+  width: 100px;
+  text-align: center;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color);
+}
+
+.choices {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
