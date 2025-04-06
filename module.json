@@ -1,12 +1,14 @@
 {
   "name": "kingdom-battleground",
   "title": "Kingdom Battleground",
-  "description": "Adds custom features to play Kindom Battleground.",
+  "description": "Adds custom features to play Kingdom Battleground.",
   "version": "1.0.0",
   "author": "Alexis Sanzey, Pharoah Jardin",
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
   "styles": [
     "css/style.css"
-  ]
+  ],
+  "manifest": "https://raw.githubusercontent.com/pyroxenite/kingdom-battleground/refs/heads/main/module.json",
+  "download": "https://github.com/pyroxenite/kingdom-battleground/archive/refs/heads/main.zip"
 }
