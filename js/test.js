@@ -28,5 +28,6 @@ function display_choice(prompt, options) {
             document.querySelector(".choice#" + element_id).addEventListener("click", () => {
                 option.callback();
             })
+        }
     });
 }
