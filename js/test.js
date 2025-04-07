@@ -9,7 +9,7 @@ function display_choice(prompt, options) {
     for (let option_id in options) {
         let option = options[option_id];
         //kingdom.callbacks[choice_message_id][option_id] = option.callback;
-        options_html += `<div class="choice" style="--color: ${option.color};" id="${choice_message_id}_${option_id}">${option.name}</div>`
+        options_html += `<div class="choice" style="--color: ${option.color};" id="${choice_message_id}-${option_id}">${option.name}</div>`
 
     }
 
@@ -24,7 +24,7 @@ function display_choice(prompt, options) {
     }).then(() => {
         for (let option_id in options) {
             let option = options[option_id];
-            let element_id = `${choice_message_id}_${option_id}`;
+            let element_id = `${choice_message_id}-${option_id}`;
             document.querySelector(".choice#" + element_id).addEventListener("click", () => {
                 option.callback();
             })
