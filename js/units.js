@@ -5,35 +5,28 @@ class Unit {
     }
 
     attack_other(target) {
-        let distance = 100 // distance entre this.token et target
-        if (distance <= 100) {
-            conflict_cac(this.token, other, "attack");
-            // pop-up defense ?
-        
-        } else {
-            conflict_tir(this.token, other);
-        }
-        
-    }
 
-    defend_from(other) {
-        let distance = 100 // distance entre this.token et target
-        if (distance <= 100) {
-            //pop up
-            conflict_cac(this.token, other, "defense");
-        
-        } else {
-            //defense_tir(this.token, other);
+        // distance entre this.token et target
+        let token = canvas.tokens.controlled[0];
+        let rival = Array.from(game.user.targets)[0]
+        let ray = new Ray(token1.center, target.center);
+        let distance = canvas.grid.measureDistances([{ ray }], { gridSpaces: true })[0];
+
+
+        conflict(this.token, orther, "attack", distance)
+
+        if (range == "_cac") {
+            //Pop up : "défense?"
+
+            if (response == true)
+                conflict(other, this.token, "defense", range)
+
+
         }
     }
 
-    move(position) {
 
-    }
 
-    set_stance(stance_name) {
-
-    }
 
     sync() {
         //this.life = life ?? 0;
@@ -46,6 +39,7 @@ class Unit {
         //this.speed = speed ?? 0;
         //this.set_stance(stance_name ?? "combat");
         //this.superior = superior ?? null;
+
     }
 }
 
@@ -53,8 +47,6 @@ class Soldat extends Unit {
     constructor() {
         super({});
     }
-
-
-
-
 }
+
+let soldat = new Soldat()

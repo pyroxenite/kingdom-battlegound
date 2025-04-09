@@ -1,9 +1,9 @@
 Hooks.once("ready", () => {
-    
-    console.log("Kingdom Battleground Loaded")
-ui.notifications.info("Kingdom Battleground Loaded");
 
-add_listen_socket()
+    console.log("Kingdom Battleground Loaded")
+    ui.notifications.info("Kingdom Battleground Loaded");
+
+    add_listen_socket()
 })
 
 
@@ -29,12 +29,12 @@ function talk() {
     });
 }
 
-// MARK: CONFLIT
-function conflict_cac(token, rival, conflict_type) {
+// MARK: CONFLIT CAC
+function conflict(token, rival, conflict_type, distance) {
 
     // vérifie si une seule target et un seul token a été sélectionné
-    if (conflict_type != "attaque" && conflict_type != "defense") {
-        throw new Error(`conflict_type: "${conflict_type}" must be "attaque" or "defense"!`)
+    if (conflict_type != "attack" && conflict_type != "defense") {
+        throw new Error(`conflict_type: "${conflict_type}" must be "attack" or "defense"!`)
     }
     let actor = token?.actor;
     if (!actor) {
@@ -54,11 +54,29 @@ function conflict_cac(token, rival, conflict_type) {
         return
     }
 
-    ui.notifications.warn(`${actor.name} ${conflict_type} ${rival.actor.name}`);
+    let actor_type = actor.system.props.classe;
+    let rival_type = rival.actor.system.props.classe;
+
+    // Regarde si l'unité peut attaquer ou defense à distance
+    range = range_type(distance)
+    if (range == "_tir" && actor_type != "tireur") {
+        ui.notifications.warn(`La cible est hors d'atteinte : votre unité ne peut pas ${(conflict_type == "attack") ? "attaquer" : "defendre"} à distance.}`);
+        return
+    }
+    if (range == "_tir" && actor.system.props.portee < distance) {
+        ui.notifications.warn(`La cible est hors d'atteinte : ${ditance} / ${actor.system.props.portee} mètres.`);
+        return
+    }
+
+
+
+
+
+    ui.notifications.warn(`${actor_name} ${conflict_type == "attack" ? "attaque" : "réplique contre"} ${rival_name} ${range == "_cac" ? "au corps à corps" : "à distance"}`);
 
     // Définit des variables sympas
     let player_color = game.users.current.color.css; // !!! Trouver la coleur du joueur à qui appartient la target !!!
-    let base_conflict_cac = actor.system.attributeBar["base_" + conflict_type].value;
+    let base_conflict = actor.system.attributeBar["base_" + conflict_type].value;
     let actor_name = actor.name;
     let rival_name = rival.actor.name;
 
@@ -83,7 +101,7 @@ function conflict_cac(token, rival, conflict_type) {
     }
     let stance_prop = get_stance_properties(stance_name);
     let rival_stance_prop = get_stance_properties(rival_stance_name);
-    let esquive_or_precision = (conflict_type == "attaque") ? "esquive" : "precision";
+    let esquive_or_precision = (conflict_type == "attack") ? "esquive" : "precision";
 
     // Récurpère les propriétés des régions
     let region_prop = get_region_modifier(token);
@@ -91,28 +109,29 @@ function conflict_cac(token, rival, conflict_type) {
 
 
     // Calcule l'attaque du token
-    let conflict_cac_total = base_conflict_cac
-        + stance_prop[conflict_type + "_cac"]
-        + region_prop[conflict_type + "_cac"]
-        - rival_stance_prop[esquive_or_precision + "_cac"]
-        - rival_region_prop[esquive_or_precision + "_cac"]
+    let conflict_total = base_conflict
+        + stance_prop[conflict_type + range]
+        + region_prop[conflict_type + range]
+        - rival_stance_prop[esquive_or_precision + range]
+        - rival_region_prop[esquive_or_precision + range]
         + height_mod;
 
     // Lance un Dé
     new Roll("1d20").evaluate().then((result) => {
-        let success = (conflict_cac_total >= result._total);
+        let success = (conflict_total >= result._total);
         let critique = critique_type(result._total);
 
         // Affiche le tableau
-        display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, conflict_cac_total, stance_prop, region_prop, result._total, success, critique, rival_stance_prop.name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision);
+        display_attack_in_chat(conflict_type, actor_name, base_conflict, conflict_total, stance_prop, region_prop, result._total, success, critique, rival_stance_prop.name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision, range);
     })
 }
 
+
 // MARK: DISPLAY
-function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, conflict_cac_total, stance_prop, region_mod, roll_result, success, critique, rival_stance_prop_name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision) {
+function display_attack_in_chat(conflict_type, actor_name, base_conflict, conflict_total, stance_prop, region_mod, roll_result, success, critique, rival_stance_prop_name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision, range) {
     ChatMessage.create({
         content: `
-      <b>${actor_name} ${conflict_type == "attaque" ? "attaque" : "réplique contre"} ${rival_name}</b>
+      <b>${actor_name} ${conflict_type == "attack" ? "attaque" : "réplique contre"} ${rival_name} ${range == "_cac" ? "au corps à corps" : "à distance"}</b>
       <br>
       <table border="1">
         <thead style="background-color: ${player_color}">
@@ -124,13 +143,13 @@ function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, co
         </thead>
         <tbody>
           <tr>
-            <td>${conflict_type == "attaque" ? "Attaque" : "Défense"}</td>
-            <td>${base_conflict_cac}</td>
+            <td>${conflict_type == "attack" ? "Attaque" : "Défense"}</td>
+            <td>${base_conflict}</td>
   
           </tr>
           <tr>
             <td>Modificateurs</td>
-            <td>${s_num(stance_prop[conflict_type + "_cac"])} (${stance_prop.name}) ${s_num(region_mod.attaque ?? 0)} (${region_mod.name ?? "Plaines"})</td>
+            <td>${s_num(stance_prop[conflict_type + range])} (${stance_prop.name}) ${s_num(region_mod[conflict_type + range] ?? 0)} (${region_mod.name ?? "Plaines"})</td>
           </tr>
           <tr>
             <td>Hauteur</td>
@@ -139,15 +158,15 @@ function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, co
           </tr>
           <tl>
           <tr>
-            <td>${conflict_type == "attaque" ? "Esquive" : "Précision"} adverse</td>
-            <td>${s_num(-rival_stance_prop[esquive_or_precision + "_cac"])} (${rival_stance_prop_name})  ${s_num(-rival_region_prop[esquive_or_precision + "_cac"])} (${rival_region_prop.name})</td>
+            <td>${conflict_type == "attack" ? "Esquive" : "Précision"} adverse</td>
+            <td>${s_num(-rival_stance_prop[esquive_or_precision + range])} (${rival_stance_prop_name})  ${s_num(-rival_region_prop[esquive_or_precision + range])} (${rival_region_prop.name})</td>
           </tr>
           <tl>
         </tbody>
         <tfoot style="color: white">
           <tr>
-            <td>Total ${conflict_type == "attaque" ? "Attaque" : "Défense"}</td>
-            <td>${conflict_cac_total}</td>
+            <td>Total ${conflict_type == "attack" ? "Attaque" : "Défense"}</td>
+            <td>${conflict_total}</td>
           </tr>
           <tr>
             <td>Résultat du Dé</td>
@@ -188,7 +207,7 @@ function get_region_modifier(token) {
             return {
                 name: region.document.name,
                 vitesse: -1,
-                attaque_cac: -1, attaque_tir: -2,
+                attack_cac: -1, attack_tir: -2,
                 defense_cac: +2, defense_tir: +2,
                 puissance_cac: -1, puissance_tir: -2,
                 intimidation_cac: +1, intimidation_tir: +1,
@@ -202,7 +221,7 @@ function get_region_modifier(token) {
             return {
                 name: region.document.name,
                 vitesse: -1,
-                attaque_cac: -3, attaque_tir: -3,
+                attack_cac: -3, attack_tir: -3,
                 defense_cac: -3, defense_tir: -3,
                 puissance_cac: -3, puissance_tir: -2,
                 intimidation_cac: -2, intimidation_tir: +2,
@@ -216,7 +235,7 @@ function get_region_modifier(token) {
             return {
                 name: region.document.name,
                 vitesse: +1,
-                attaque_cac: +2, attaque_tir: +1,
+                attack_cac: +2, attack_tir: +1,
                 defense_cac: 0, defense_tir: -1,
                 puissance_cac: +1, puissance_tir: +1,
                 intimidation_cac: +1, intimidation_tir: +1,
@@ -230,7 +249,7 @@ function get_region_modifier(token) {
             return {
                 name: region.document.name,
                 vitesse: -1,
-                attaque_cac: -1, attaque_tir: -3,
+                attack_cac: -1, attack_tir: -3,
                 defense_cac: +4, defense_tir: +2,
                 puissance_cac: 0, puissance_tir: -1,
                 intimidation_cac: 0, intimidation_tir: 0,
@@ -244,7 +263,7 @@ function get_region_modifier(token) {
             return {
                 name: region.document.name,
                 vitesse: -1,
-                attaque_cac: 0, attaque_tir: +1,
+                attack_cac: 0, attack_tir: +1,
                 defense_cac: +2, defense_tir: +1,
                 puissance_cac: -1, puissance_tir: 0,
                 intimidation_cac: +1, intimidation_tir: 0,
@@ -258,7 +277,7 @@ function get_region_modifier(token) {
     return {
         name: "Plaine",
         vitesse: 0,
-        attaque_cac: 0, attaque_tir: 0,
+        attack_cac: 0, attack_tir: 0,
         defense_cac: 0, defense_tir: 0,
         puissance_cac: 0, puissance_tir: 0,
         intimidation_cac: 0, intimidation_tir: 0,
@@ -274,7 +293,7 @@ function get_stance_properties(stance_name) {
     const stances = {
         marche: {
             name: "Marche", vitesse: +1,
-            attaque_cac: -1, attaque_tir: -2,
+            attack_cac: -1, attack_tir: -2,
             defense_cac: -2, defense_tir: -1,
             puissance_cac: +1, puissance_tir: -1,
             intimidation_cac: 0, intimidation_tir: 0,
@@ -285,7 +304,7 @@ function get_stance_properties(stance_name) {
         },
         combat: {
             name: "Combat", vitesse: -1,
-            attaque_cac: +1, attaque_tir: +1,
+            attack_cac: +1, attack_tir: +1,
             defense_cac: +1, defense_tir: +1,
             puissance_cac: +2, puissance_tir: +2,
             intimidation_cac: +1, intimidation_tir: +1,
@@ -296,7 +315,7 @@ function get_stance_properties(stance_name) {
         },
         charge: {
             name: "Charge", vitesse: +2,
-            attaque_cac: +3, attaque_tir: -2,
+            attack_cac: +3, attack_tir: -2,
             defense_cac: -1, defense_tir: -2,
             puissance_cac: +3, puissance_tir: -2,
             intimidation_cac: +2, intimidation_tir: -1,
@@ -307,7 +326,7 @@ function get_stance_properties(stance_name) {
         },
         percee: {
             name: "Percée", vitesse: +1,
-            attaque_cac: +2, attaque_tir: -2,
+            attack_cac: +2, attack_tir: -2,
             defense_cac: -1, defense_tir: -2,
             puissance_cac: +2, puissance_tir: -2,
             intimidation_cac: 0, intimidation_tir: 0,
@@ -318,7 +337,7 @@ function get_stance_properties(stance_name) {
         },
         def_charge: {
             name: "Défense de combat", vitesse: -1,
-            attaque_cac: -2, attaque_tir: -1,
+            attack_cac: -2, attack_tir: -1,
             defense_cac: +4, defense_tir: -2,
             puissance_cac: -1, puissance_tir: -2,
             intimidation_cac: -2, intimidation_tir: +1,
@@ -329,7 +348,7 @@ function get_stance_properties(stance_name) {
         },
         def_eparse: {
             name: "Défense à distance", vitesse: 0,
-            attaque_cac: -3, attaque_tir: 0,
+            attack_cac: -3, attack_tir: 0,
             defense_cac: -3, defense_tir: 0,
             puissance_cac: -2, puissance_tir: -1,
             intimidation_cac: -2, intimidation_tir: -1,
@@ -340,7 +359,7 @@ function get_stance_properties(stance_name) {
         },
         repos: {
             name: "Repos", vitesse: -2,
-            attaque_cac: -4, attaque_tir: -4,
+            attack_cac: -4, attack_tir: -4,
             defense_cac: -3, defense_tir: -3,
             puissance_cac: -3, puissance_tir: -2,
             intimidation_cac: -2, intimidation_tir: -2,
@@ -351,7 +370,7 @@ function get_stance_properties(stance_name) {
         },
         tortue: {
             name: "Tortue", vitesse: -2,
-            attaque_cac: -2, attaque_tir: null,
+            attack_cac: -2, attack_tir: null,
             defense_cac: +3, defense_tir: +3,
             puissance_cac: 0, puissance_tir: 0,
             intimidation_cac: +2, intimidation_tir: null,
@@ -412,5 +431,15 @@ function s_num(x) {
     }
     if (x < 0) {
         return `${x}`
+    }
+}
+
+// MARK: RANGE TYPE
+function range_type(distance) {
+    if (distance <= 100) {
+        return "_cac"
+    }
+    if (distance > 100) {
+        return "_tir"
     }
 }
