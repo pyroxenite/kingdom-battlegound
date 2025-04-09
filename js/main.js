@@ -54,8 +54,13 @@ function conflict(token, rival, conflict_type, distance) {
         return
     }
 
+    // Définit des variables sympas
+    let player_color = game.users.current.color.css;
+    // !!! Trouver la coleur du joueur à qui appartient la target !!!
+    let base_conflict = actor.system.attributeBar["base_" + conflict_type].value;
+    let actor_name = actor.name;
+    let rival_name = rival.actor.name;
     let actor_type = actor.system.props.classe;
-    let rival_type = rival.actor.system.props.classe;
 
     // Regarde si l'unité peut attaquer ou defense à distance
     range = range_type(distance)
@@ -63,8 +68,8 @@ function conflict(token, rival, conflict_type, distance) {
         ui.notifications.warn(`La cible est hors d'atteinte : votre unité ne peut pas ${(conflict_type == "attack") ? "attaquer" : "defendre"} à distance.}`);
         return
     }
-    if (range == "_tir" && actor.system.props.portee < distance) {
-        ui.notifications.warn(`La cible est hors d'atteinte : ${ditance} / ${actor.system.props.portee} mètres.`);
+    if (actor.system.props.portee < distance) {
+        ui.notifications.warn(`La cible est hors d'atteinte : ${distance} / ${actor.system.props.portee} mètres.`);
         return
     }
 
@@ -74,11 +79,7 @@ function conflict(token, rival, conflict_type, distance) {
 
     ui.notifications.warn(`${actor_name} ${conflict_type == "attack" ? "attaque" : "réplique contre"} ${rival_name} ${range == "_cac" ? "au corps à corps" : "à distance"}`);
 
-    // Définit des variables sympas
-    let player_color = game.users.current.color.css; // !!! Trouver la coleur du joueur à qui appartient la target !!!
-    let base_conflict = actor.system.attributeBar["base_" + conflict_type].value;
-    let actor_name = actor.name;
-    let rival_name = rival.actor.name;
+
 
     // Calcule le modificateur de hauteur
     let height_diff = get_height(token) - get_height(rival);

@@ -9,13 +9,12 @@ class Unit {
         // distance entre this.token et target
         let token = canvas.tokens.controlled[0];
         let rival = Array.from(game.user.targets)[0]
-        let ray = new Ray(token1.center, target.center);
+        let ray = new Ray(token.center, rival.center);
         let distance = canvas.grid.measureDistances([{ ray }], { gridSpaces: true })[0];
+        
+        conflict(token, rival, "attack", distance)
 
-
-        conflict(this.token, orther, "attack", distance)
-
-        if (range == "_cac") {
+        if (distance <= 100) {
             //Pop up : "défense?"
 
             if (response == true)
