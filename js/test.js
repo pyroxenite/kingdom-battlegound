@@ -31,3 +31,8 @@ function display_choice(prompt, options) {
         }
     });
 }
+
+// display_choice("choisi mec", { 
+//     "1": { name: "pas de bras", callback: () => { console.log("pas de bras") } }, 
+//     "2": { name: "pas de jambes", callback: () => { console.log("il va pas courir loin") } }
+// })

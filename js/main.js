@@ -30,7 +30,7 @@ function talk() {
 }
 
 // MARK: CONFLIT
-function conflict(token, rival, conflict_type) {
+function conflict_cac(token, rival, conflict_type) {
 
     // vérifie si une seule target et un seul token a été sélectionné
     if (conflict_type != "attaque" && conflict_type != "defense") {
@@ -86,31 +86,30 @@ function conflict(token, rival, conflict_type) {
     let esquive_or_precision = (conflict_type == "attaque") ? "esquive" : "precision";
 
     // Récurpère les propriétés des régions
-    let region_prop = get_region_modifier(token)
-    let rival_region_prop = get_region_modifier(rival)
+    let region_prop = get_region_modifier(token);
+    let rival_region_prop = get_region_modifier(rival);
 
 
     // Calcule l'attaque du token
-    let conflict_cac = base_conflict_cac
+    let conflict_cac_total = base_conflict_cac
         + stance_prop[conflict_type + "_cac"]
         + region_prop[conflict_type + "_cac"]
         - rival_stance_prop[esquive_or_precision + "_cac"]
         - rival_region_prop[esquive_or_precision + "_cac"]
-        + height_mod
+        + height_mod;
 
     // Lance un Dé
     new Roll("1d20").evaluate().then((result) => {
-        let success = (conflict_cac >= result._total);
-        let critique = critique_type(result._total)
+        let success = (conflict_cac_total >= result._total);
+        let critique = critique_type(result._total);
 
         // Affiche le tableau
-        display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, conflict_cac, stance_prop, region_prop, result._total, success, critique, rival_stance_prop.name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name);
+        display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, conflict_cac_total, stance_prop, region_prop, result._total, success, critique, rival_stance_prop.name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision);
     })
 }
 
 // MARK: DISPLAY
-function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, attaque_cac, stance_prop, region_mod, roll_result, success, critique, rival_stance_prop_name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name) {
-
+function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, conflict_cac_total, stance_prop, region_mod, roll_result, success, critique, rival_stance_prop_name, rival_stance_prop, rival_name, rival_region_prop, player_color, height_mod, height_name, esquive_or_precision) {
     ChatMessage.create({
         content: `
       <b>${actor_name} ${conflict_type == "attaque" ? "attaque" : "réplique contre"} ${rival_name}</b>
@@ -131,7 +130,7 @@ function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, at
           </tr>
           <tr>
             <td>Modificateurs</td>
-            <td>${s_num(stance_prop.attaque_cac)} (${stance_prop.name}) ${s_num(region_mod.attaque ?? 0)} (${region_mod.name ?? "Plaines"})</td>
+            <td>${s_num(stance_prop[conflict_type + "_cac"])} (${stance_prop.name}) ${s_num(region_mod.attaque ?? 0)} (${region_mod.name ?? "Plaines"})</td>
           </tr>
           <tr>
             <td>Hauteur</td>
@@ -140,15 +139,15 @@ function display_attack_in_chat(conflict_type, actor_name, base_conflict_cac, at
           </tr>
           <tl>
           <tr>
-            <td>Esquive Adverse</td>
-            <td>${s_num(-rival_stance_prop.esquive_cac)} (${rival_stance_prop_name})  ${s_num(-rival_region_prop.esquive_cac)} (${rival_region_prop.name})</td>
+            <td>${conflict_type == "attaque" ? "Esquive" : "Précision"} adverse</td>
+            <td>${s_num(-rival_stance_prop[esquive_or_precision + "_cac"])} (${rival_stance_prop_name})  ${s_num(-rival_region_prop[esquive_or_precision + "_cac"])} (${rival_region_prop.name})</td>
           </tr>
           <tl>
         </tbody>
         <tfoot style="color: white">
           <tr>
             <td>Total ${conflict_type == "attaque" ? "Attaque" : "Défense"}</td>
-            <td>${attaque_cac}</td>
+            <td>${conflict_cac_total}</td>
           </tr>
           <tr>
             <td>Résultat du Dé</td>
