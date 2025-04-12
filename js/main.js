@@ -28,33 +28,52 @@ Hooks.once("ready", () => {
             id: "percee",
             label: "Charge",
             icon: "modules/kingdom-battleground/icons/percee.svg",
-            flags: { core: { statusId: "charge" } }
+            flags: { core: { statusId: "percee" } }
         },
         {
             id: "def_charge",
             label: "Défense de charge",
             icon: "modules/kingdom-battleground/icons/def_charge.svg",
-            flags: { core: { statusId: "charge" } }
+            flags: { core: { statusId: "def_charge" } }
         },
         {
             id: "def_eparse",
             label: "Défense éparse",
             icon: "modules/kingdom-battleground/icons/def_eparse.svg",
-            flags: { core: { statusId: "charge" } }
+            flags: { core: { statusId: "def_eparse" } }
         },
         {
             id: "repos",
             label: "Repos",
             icon: "modules/kingdom-battleground/icons/repos.svg",
-            flags: { core: { statusId: "charge" } }
+            flags: { core: { statusId: "repos" } }
         },
         {
             id: "special",
             label: "Special",
             icon: "modules/kingdom-battleground/icons/special.svg",
-            flags: { core: { statusId: "charge" } }
+            flags: { core: { statusId: "special" } }
         }
     ];
+    Hooks.on("toggleEffect", async (token, effect, active) => {
+        if (!active) return; // Si on retire un effet, ne rien faire
+
+        // Liste des IDs de tes statuts personnalisés
+        const statusIds = ["marche", "combat", "charge", "percee", "def_charge", "def_eparse", "repos", "special"];
+
+        // Si l'effet qu'on applique est dans ta liste personnalisée
+        if (statusIds.includes(effect.id)) {
+            const otherEffects = token.actor.effects.contents.filter(e => {
+                const statusId = e.getFlag("core", "statusId");
+                return statusId && statusId !== effect.id && statusIds.includes(statusId);
+            });
+
+            // Supprimer les autres statuts si présents
+            for (let e of otherEffects) {
+                await e.delete();
+            }
+        }
+    });
 })
 
 
