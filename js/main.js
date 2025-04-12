@@ -4,8 +4,58 @@ Hooks.once("ready", () => {
     ui.notifications.info("Kingdom Battleground Loaded");
 
     add_listen_socket()
-})
 
+    CONFIG.statusEffects = [
+        {
+            id: "marche",
+            label: "marche",
+            icon: "modules/kingdom-battleground/icons/marche.svg",
+            flags: { core: { statusId: "marche" } }
+        },
+        {
+            id: "combat",
+            label: "Combat",
+            icon: "modules/kingdom-battleground/icons/combat.svg",
+            flags: { core: { statusId: "combat" } }
+        },
+        {
+            id: "charge",
+            label: "Charge",
+            icon: "modules/kingdom-battleground/icons/charge.svg",
+            flags: { core: { statusId: "charge" } }
+        },
+        {
+            id: "percee",
+            label: "Charge",
+            icon: "modules/kingdom-battleground/icons/percee.svg",
+            flags: { core: { statusId: "charge" } }
+        },
+        {
+            id: "def_charge",
+            label: "Défense de charge",
+            icon: "modules/kingdom-battleground/icons/def_charge.svg",
+            flags: { core: { statusId: "charge" } }
+        },
+        {
+            id: "def_eparse",
+            label: "Défense éparse",
+            icon: "modules/kingdom-battleground/icons/def_eparse.svg",
+            flags: { core: { statusId: "charge" } }
+        },
+        {
+            id: "repos",
+            label: "Repos",
+            icon: "modules/kingdom-battleground/icons/repos.svg",
+            flags: { core: { statusId: "charge" } }
+        },
+        {
+            id: "special",
+            label: "Special",
+            icon: "modules/kingdom-battleground/icons/special.svg",
+            flags: { core: { statusId: "charge" } }
+        }
+    ];
+})
 
 
 function add_listen_socket() {
@@ -434,7 +484,6 @@ function s_num(x) {
         return `${x}`
     }
 }
-
 // MARK: RANGE TYPE
 function range_type(distance) {
     if (distance <= 100) {
